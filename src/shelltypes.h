@@ -1,7 +1,7 @@
 #ifndef SHELLTYPES_H
 #define SHELLTYPES_H
 
-#include <stdbool.h>>
+#include <stdbool.h>
 #include <stddef.h>
 
 // Single command in a pipeline
@@ -21,4 +21,4 @@ typedef struct {
 } Job;
 
 
-#endif SHELLTYPES_H
+#endif // SHELLTYPES_H

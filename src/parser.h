@@ -5,4 +5,4 @@
 Job *parse_line(const char *line);
 void free_job(Job *job);
 
-#endif PARSER_H
+#endif // PARSER_H
