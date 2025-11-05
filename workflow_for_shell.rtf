@@ -1,0 +1,581 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2822
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\froman\fcharset0 Times-Bold;\f1\froman\fcharset0 Times-Roman;\f2\froman\fcharset0 Times-Italic;
+\f3\fnil\fcharset0 AppleColorEmoji;\f4\fmodern\fcharset0 Courier;\f5\fnil\fcharset0 Menlo-Regular;
+\f6\fmodern\fcharset0 Courier-Bold;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red109\green109\blue109;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;\cssrgb\c50196\c50196\c50196;}
+{\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid1\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid1}}
+{\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11620\viewh6600\viewkind0
+\deftab720
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b\fs24 \cf0 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Option 1 (split by subsystem)
+\f1\b0  is the most \'93real-world\'94 way to collaborate on a systems project like this.\uc0\u8232 It mirrors how shells (like Bash or zsh) are structured internally: a 
+\f2\i parser
+\f1\i0  that builds a command/job structure, and an 
+\f2\i executor
+\f1\i0  that runs those jobs with process management and redirection.\
+Let\'92s lock in that structure and divide work cleanly so you can develop 
+\f0\b independently
+\f1\b0  but 
+\f0\b integrate smoothly
+\f1\b0  later.\
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa298\partightenfactor0
+
+\f3\fs36 \cf0 \strokec2 \uc0\u55358 \u56809 
+\f0\b  Big-Picture Division\
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrt\brdrnil \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth1887\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth7438\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth2028\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth3966\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\qc\partightenfactor0
+
+\fs24 \cf0 Role\cell 
+\pard\intbl\itap1\pardeftab720\qc\partightenfactor0
+\cf0 Main Focus\cell 
+\pard\intbl\itap1\pardeftab720\qc\partightenfactor0
+\cf0 Deliverable\cell 
+\pard\intbl\itap1\pardeftab720\qc\partightenfactor0
+\cf0 Key Files\cell \row
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth1887\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth7438\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth2028\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth3966\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Teammate A: Parser Specialist
+\f1\b0 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Reads and interprets the command line according to the given BNF grammar. Handles tokenization, quotes, special symbols, redirection, `\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f4\fs26 \cf0 , 
+\f1\fs24 &
+\f4\fs26 , 
+\f1\fs24 ;`, and builds data structures.\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f4\fs26 \cf0 parse_line()
+\f1\fs24  returning a structured 
+\f4\fs26 Job
+\f1\fs24  object ready for execution.\cell \row
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrt\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth1887\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth7438\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth2028\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth3966\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f0\b \cf0 Teammate B: Executor Specialist
+\f1\b0 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Takes a parsed 
+\f4\fs26 Job
+\f1\fs24  and runs it. Manages forks, execs, pipes, redirection, background jobs, sequential execution, signals, built-ins.\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f4\fs26 \cf0 execute_job()
+\f1\fs24  and helpers.\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f4\fs26 \cf0 executor.c
+\f1\fs24 , 
+\f4\fs26 executor.h
+\f1\fs24 \cell \lastrow\row
+\pard\pardeftab720\partightenfactor0
+\cf3 \strokec3 \
+\pard\pardeftab720\sa298\partightenfactor0
+
+\f3\fs36 \cf0 \strokec2 \uc0\u55358 \u56817 
+\f0\b  Shared Project Skeleton\
+\pard\pardeftab720\partightenfactor0
+
+\f4\b0\fs26 \cf0 src/\
+  main.c           
+\f5 \uc0\u8592 
+\f4  reads line, calls parse_line() then execute_job()\
+  parser.c\
+  parser.h\
+  executor.c\
+  executor.h\
+  builtins.c\
+  builtins.h\
+Makefile\
+\pard\pardeftab720\partightenfactor0
+
+\f1\fs24 \cf3 \strokec3 \
+\pard\pardeftab720\sa298\partightenfactor0
+
+\f3\fs36 \cf0 \strokec2 \uc0\u55358 \u56809 
+\f0\b  Shared Data Structures (in 
+\f6\fs39 shelltypes.h
+\f0\fs36 )\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f1\b0\fs24 \cf0 These define how both halves talk to each other:\
+\pard\pardeftab720\partightenfactor0
+
+\f4\fs26 \cf0 #ifndef SHELLTYPES_H\
+#define SHELLTYPES_H\
+\
+#include <stdbool.h>\
+\
+typedef struct \{\
+    char **argv;          // null-terminated argument list\
+    char *input_file;     // for '<'\
+    char *output_file;    // for '>'\
+    char *error_file;     // for '2>'\
+\} Command;\
+\
+typedef struct \{\
+    Command *commands;    // array of commands (pipeline)\
+    size_t   num_cmds;    // number of commands in the pipeline\
+    bool     background;  // ends with &\
+    bool     sequential;  // ends with ;\
+\} Job;\
+\
+#endif\
+\pard\pardeftab720\partightenfactor0
+
+\f1\fs24 \cf3 \strokec3 \
+\pard\pardeftab720\sa298\partightenfactor0
+
+\f3\fs36 \cf0 \strokec2 \uc0\u55358 \u56785 \u8205 \u55357 \u56507 
+\f0\b  Teammate A \'97 Parser Specialist\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f1\b0\fs24 \cf0 Your job is to 
+\f0\b convert a command line string into a Job struct
+\f1\b0 .\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f0\b\fs28 \cf0 Tasks & Milestones\
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrt\brdrnil \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth453\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth4474\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth2875\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth3567\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\qc\partightenfactor0
+
+\fs24 \cf0 Step\cell 
+\pard\intbl\itap1\pardeftab720\qc\partightenfactor0
+\cf0 Feature\cell 
+\pard\intbl\itap1\pardeftab720\qc\partightenfactor0
+\cf0 Key C APIs\cell 
+\pard\intbl\itap1\pardeftab720\qc\partightenfactor0
+\cf0 Output\cell \row
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth453\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth4474\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth2875\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth3567\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f1\b0 \cf0 1\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Basic whitespace tokenizer\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f4\fs26 \cf0 strtok
+\f1\fs24  or manual scanning\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f4\fs26 \cf0 argv[]
+\f1\fs24  for one command\cell \row
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth453\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth4474\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth2875\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth3567\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 2\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Support quotes 
+\f4\fs26 '
+\f1\fs24 , 
+\f4\fs26 "
+\f1\fs24 , and escapes 
+\f4\fs26 \\
+\f1\fs24 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 custom scanning\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Handles \'93space in arg\'94\cell \row
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth453\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth4474\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth2875\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth3567\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 3\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Identify special symbols `\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f4\fs26 \cf0 , 
+\f1\fs24 <
+\f4\fs26 , 
+\f1\fs24 >
+\f4\fs26 , 
+\f1\fs24 2>
+\f4\fs26 , 
+\f1\fs24 ;
+\f4\fs26 , 
+\f1\fs24 &`\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 character scanning\cell \row
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth453\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth4474\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth2875\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth3567\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 4\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Wildcard expansion\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f4\fs26 \cf0 glob(3)
+\f1\fs24 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Replace 
+\f4\fs26 *.c
+\f1\fs24  tokens with actual files\cell \row
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrt\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth453\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth4474\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth2875\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth3567\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 5\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Build dynamic structs (
+\f4\fs26 malloc
+\f1\fs24 , 
+\f4\fs26 realloc
+\f1\fs24 )\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 \'97\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Fill 
+\f4\fs26 Job
+\f1\fs24  and 
+\f4\fs26 Command
+\f1\fs24  structs\cell \lastrow\row
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f0\b\fs28 \cf0 \
+Deliverable\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f1\b0\fs24 \cf0 Header (
+\f4\fs26 parser.h
+\f1\fs24 ):\
+\pard\pardeftab720\partightenfactor0
+
+\f4\fs26 \cf0 #ifndef PARSER_H\
+#define PARSER_H\
+#include "shelltypes.h"\
+Job *parse_line(const char *line);\
+void free_job(Job *job);\
+#endif\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f1\fs24 \cf0 Your 
+\f4\fs26 parse_line()
+\f1\fs24  should allocate and populate a 
+\f4\fs26 Job
+\f1\fs24  that 
+\f4\fs26 execute_job()
+\f1\fs24  can directly run.\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f0\b\fs28 \cf0 \
+Parser Test Plan\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f1\b0\fs24 \cf0 Write a tiny standalone main for testing:\
+\pard\pardeftab720\partightenfactor0
+
+\f4\fs26 \cf0 int main(void) \{\
+    char line[256];\
+    while (printf("parser> "), fflush(stdout), fgets(line, sizeof line, stdin)) \{\
+        Job *job = parse_line(line);\
+        // print job contents for debugging\
+        free_job(job);\
+    \}\
+\}\
+\pard\pardeftab720\partightenfactor0
+
+\f1\fs24 \cf3 \strokec3 \
+\
+\pard\pardeftab720\sa298\partightenfactor0
+
+\f3\fs36 \cf0 \strokec2 \uc0\u9881 \u65039 
+\f0\b  Teammate B \'97 Executor Specialist\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f1\b0\fs24 \cf0 You\'92ll take a 
+\f4\fs26 Job
+\f1\fs24  object and run it exactly as the shell specification defines.\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f0\b\fs28 \cf0 Tasks & Milestones\
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrt\brdrnil \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth453\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth2819\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth3828\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth3926\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\qc\partightenfactor0
+
+\fs24 \cf0 Step\cell 
+\pard\intbl\itap1\pardeftab720\qc\partightenfactor0
+\cf0 Feature\cell 
+\pard\intbl\itap1\pardeftab720\qc\partightenfactor0
+\cf0 Key syscalls\cell 
+\pard\intbl\itap1\pardeftab720\qc\partightenfactor0
+\cf0 Notes\cell \row
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth453\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth2819\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth3828\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth3926\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f1\b0 \cf0 1\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Run single command\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f4\fs26 \cf0 fork()
+\f1\fs24 , 
+\f4\fs26 execvp()
+\f1\fs24 , 
+\f4\fs26 waitpid()
+\f1\fs24 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Works with 
+\f4\fs26 argv[]
+\f1\fs24 \cell \row
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth453\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth2819\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth3828\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth3926\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 2\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Input/output/error redirection\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f4\fs26 \cf0 open()
+\f1\fs24 , 
+\f4\fs26 dup2()
+\f1\fs24 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Use 
+\f4\fs26 Command.input_file
+\f1\fs24 , etc.\cell \row
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth453\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth2819\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth3828\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth3926\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 3\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Pipelines\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f4\fs26 \cf0 pipe()
+\f1\fs24 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Chain multiple 
+\f4\fs26 Command
+\f1\fs24 s\cell \row
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth453\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth2819\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth3828\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth3926\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 4\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Background jobs\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f4\fs26 \cf0 waitpid(..., WNOHANG)
+\f1\fs24 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Keep job list optional\cell \row
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth453\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth2819\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth3828\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth3926\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 5\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Sequential jobs (
+\f4\fs26 ;
+\f1\fs24 )\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 run next after previous\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Straight loop\cell \row
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth453\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth2819\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth3828\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth3926\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 6\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Signal handling\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f4\fs26 \cf0 signal()
+\f1\fs24 , 
+\f4\fs26 sigaction()
+\f1\fs24 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Ignore Ctrl-C in shell, restore in children\cell \row
+
+\itap1\trowd \taflags0 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrt\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clwWidth453\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx2160
+\clvertalc \clshdrawnil \clwWidth2819\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx4320
+\clvertalc \clshdrawnil \clwWidth3828\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx6480
+\clvertalc \clshdrawnil \clwWidth3926\clftsWidth3 \clmart10 \clmarl10 \clmarb10 \clmarr10 \clbrdrt\brdrnil \clbrdrl\brdrnil \clbrdrb\brdrnil \clbrdrr\brdrnil \clpadt20 \clpadl20 \clpadb20 \clpadr20 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 7\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 Built-ins\cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+\cf0 call functions from 
+\f4\fs26 builtins.c
+\f1\fs24 \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f4\fs26 \cf0 cd
+\f1\fs24 , 
+\f4\fs26 pwd
+\f1\fs24 , 
+\f4\fs26 exit
+\f1\fs24 , 
+\f4\fs26 prompt
+\f1\fs24 , etc.\cell \lastrow\row
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f0\b\fs28 \cf0 \
+Deliverable\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f1\b0\fs24 \cf0 Header (
+\f4\fs26 executor.h
+\f1\fs24 ):\
+\pard\pardeftab720\partightenfactor0
+
+\f4\fs26 \cf0 #ifndef EXECUTOR_H\
+#define EXECUTOR_H\
+#include "shelltypes.h"\
+int execute_job(const Job *job);\
+#endif\
+\pard\pardeftab720\sa280\partightenfactor0
+
+\f0\b\fs28 \cf0 \
+Test Plan\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f1\b0\fs24 \cf0 Make a small driver:\
+\pard\pardeftab720\partightenfactor0
+
+\f4\fs26 \cf0 int main(int argc, char **argv) \{\
+    // manually construct a Job with one command like "ls -l"\
+    // then call execute_job(&job);\
+\}\
+\
+\pard\pardeftab720\partightenfactor0
+
+\f1\fs24 \cf3 \strokec3 \
+\pard\pardeftab720\sa298\partightenfactor0
+
+\f3\fs36 \cf0 \strokec2 \uc0\u55358 \u56809 
+\f0\b  Integration Plan (when both parts ready)\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f4\b0\fs26 \cf0 main.c
+\f1\fs24  will look like this:\
+\pard\pardeftab720\partightenfactor0
+
+\f4\fs26 \cf0 #include <stdio.h>\
+#include <stdlib.h>\
+#include "parser.h"\
+#include "executor.h"\
+\
+int main(void) \{\
+    char *line = NULL;\
+    size_t n = 0;\
+\
+    while (1) \{\
+        printf("%% ");\
+        fflush(stdout);\
+        if (getline(&line, &n, stdin) < 0) break;\
+\
+        Job *job = parse_line(line);\
+        if (!job) continue;\
+        execute_job(job);\
+        free_job(job);\
+    \}\
+    free(line);\
+    return 0;\
+\}\
+\
+\pard\pardeftab720\partightenfactor0
+
+\f1\fs24 \cf3 \strokec3 \
+\pard\pardeftab720\sa298\partightenfactor0
+
+\f3\fs36 \cf0 \strokec2 \uc0\u55358 \u56813 
+\f0\b  Workflow Tips\
+\pard\tx220\tx720\pardeftab720\li720\fi-720\sa240\partightenfactor0
+\ls1\ilvl0
+\f1\b0\fs24 \cf0 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Work on 
+\f0\b separate branches
+\f1\b0  in Git (e.g. 
+\f4\fs26 parser-dev
+\f1\fs24  and 
+\f4\fs26 executor-dev
+\f1\fs24 ).\
+\ls1\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Agree on the 
+\f4\fs26 Job
+\f1\fs24 /
+\f4\fs26 Command
+\f1\fs24  interface early (above types are safe defaults).\
+\ls1\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Write tiny test harnesses for your modules \'97 don\'92t wait for full integration.\
+\ls1\ilvl0\kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Keep function signatures simple and consistent (parser builds, executor runs, builtins\
+}
