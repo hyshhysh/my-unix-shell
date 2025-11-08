@@ -10,16 +10,31 @@ int main(void) {
     while (1) {
         printf("%% ");
         fflush(stdout);
+
         if (getline(&line, &n, stdin) < 0) {
             putchar('\n');
-            break; // EOF
+            break;  // EOF (Ctrl-D)
         }
 
-        Job *job = parse_line(line);
-        if (!job) continue;
+        // parse the line into one or more jobs
+        JobList list = parse_line(line);
 
-        execute_job(job);
-        free_job(job);
+        // iterate through each job and execute
+        for (size_t i = 0; i < list.count; i++) {
+            Job *job = list.jobs[i];
+            if (!job || job->num_cmds == 0) continue;
+
+            // executor stub
+            execute_job(job);
+
+            // later executor will:
+            //  - set up pipes between job->commands
+            //  - fork/exec each command
+            //  - respect job->background and job->sequential flags
+        }
+
+        // free everything parsed from this line
+        free_job_list(&list);
     }
 
     free(line);

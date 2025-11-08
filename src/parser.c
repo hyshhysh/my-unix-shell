@@ -152,44 +152,48 @@ void free_job(Job *job) {
     free(job);
 }
 
-/* ---------- Parser ---------- */
-Job *parse_line(const char *line_in) {
-    if (!line_in) return NULL;
+void free_job_list(JobList *list) {
+    if (!list) return;
+    for (size_t i = 0; i < list->count; i++) {
+        free_job(list->jobs[i]);
+    }
+    free(list->jobs);
+    list->jobs = NULL;
+    list->count = 0;
+}
 
-    // 1. Copy the input for modifying
+
+/* ---------- Parser ---------- */
+JobList parse_line(const char *line_in) {
+    JobList list  = {0}; // structure holding all parsed jobs
+    if (!line_in) return list;
+
+    // make a working copy of the input for modifications
     char *buf = strdup(line_in);
     if (!buf) {
         perror("strdup");
-        return NULL;
+        return list;
     }
     strip_trailing_newline(buf);
 
-    // 2. Tokenize by whitespace
+    // 1. tokenize the line
     StrVec tokens;
     tokenize_with_specials(buf, &tokens);
-
-    // 3. No tokens if empty line
+    // no tokens if empty line
     if (tokens.size == 0) {
         sv_free(&tokens);
         free(buf);
-        return NULL;
+        return list;
     }
 
-    // 4. Build Commands and Job
-    Job *job = calloc(1, sizeof *job);
-    if (!job) {
-        perror("calloc job");
-        sv_free(&tokens);
-        free(buf);
-        return NULL;
-    }
+    // 2. setup variables for the current job
+    Job *current_job = calloc(1, sizeof *current_job);
+    current_job->commands = NULL;
+    current_job->num_cmds = 0;
+    current_job->background = false;
+    current_job->sequential = false;
 
-    job->commands = NULL;
-    job->num_cmds = 0;
-    job->background = false;
-    job->sequential = false;
-
-    // Temp holder for current command args
+    // temporary holders for the current command being built
     StrVec argv;
     sv_init(&argv);
 
@@ -197,28 +201,63 @@ Job *parse_line(const char *line_in) {
     char *output_file = NULL;
     char *error_file = NULL;
 
+    // 3. main token scan loop
     for (size_t i = 0; i < tokens.size; i++) {
         char *t = tokens.data[i];
 
+        // job separator (; and &)
+        if (strcmp(t, ";") == 0 || strcmp(t, "&") == 0) {
+            // flush any pending argv into a command
+            if (argv.size > 0) {
+                Command cmd = make_command_from_argv(&argv);
+                cmd.input_file  = input_file;
+                cmd.output_file = output_file;
+                cmd.error_file  = error_file;
+                input_file = output_file = error_file = NULL;
+
+                current_job->commands = realloc(
+                    current_job->commands, 
+                    (current_job->num_cmds + 1) * sizeof *current_job->commands);
+                current_job->commands[current_job->num_cmds++] = cmd;
+            }
+            sv_free(&argv);
+
+            // mark job type
+            current_job->background = (strcmp(t, "&") == 0);
+            current_job->sequential = (strcmp(t, ";") == 0);
+
+            // store this job in the list
+            list.jobs = realloc(list.jobs, (list.count + 1) *sizeof *list.jobs);
+            list.jobs[list.count++] = current_job;
+
+            // start a fresh job
+            current_job = calloc(1, sizeof *current_job);
+            current_job->commands = NULL;
+            current_job->num_cmds = 0;
+            current_job->background = false;
+            current_job->sequential = false;
+            continue;
+        }
+
+        // pipeline split (|)
         if (strcmp(t, "|") == 0) {
-            // end current command, start a new one
             Command cmd = make_command_from_argv(&argv);
-            cmd.input_file  = input_file;
+            cmd.input_file = input_file;
             cmd.output_file = output_file;
-            cmd.error_file  = error_file;
+            cmd.error_file = error_file;
             input_file = output_file = error_file = NULL;
 
-            job->commands = realloc(job->commands, 
-                (job->num_cmds + 1) * sizeof *job->commands);
-            job->commands[job->num_cmds++] = cmd;
+            current_job->commands = realloc(
+                current_job->commands,
+                (current_job->num_cmds +1) * sizeof *current_job->commands);
+            current_job->commands[current_job->num_cmds++] = cmd;
 
-            // prepare for the next command in the pipeline
             sv_free(&argv);
             sv_init(&argv);
             continue;
         }
 
-        // handle redirections
+        // redirections (<, >, 2>)
         if (strcmp(t, "<") == 0 && i + 1 < tokens.size) {
             free(input_file);
             input_file = strdup(tokens.data[++i]);
@@ -234,62 +273,63 @@ Job *parse_line(const char *line_in) {
             error_file = strdup(tokens.data[++i]);
             continue;
         }
-        
-        // background & sequential flags
-        if (strcmp(t, "&") == 0) {
-            job->background = true;
-            continue;
-        }
-        if (strcmp(t, ";") == 0) {
-            job->sequential = true;
-            continue;
-        }
-        
-        // otherwise a normal argument
-            sv_push(&argv, strdup(t));
+
+        // normal word argument
+        sv_push(&argv, strdup(t));
     }
 
-    // flush the last command if any args collected
+    // 4. finalize the last command and job
     if (argv.size > 0) {
         Command cmd = make_command_from_argv(&argv);
-        cmd.input_file  = input_file;
+        cmd.input_file = input_file;
         cmd.output_file = output_file;
-        cmd.error_file  = error_file;
+        cmd.error_file = error_file;
         input_file = output_file = error_file = NULL;
 
-        job->commands = realloc(job->commands,
-                                (job->num_cmds + 1) * sizeof *job->commands);
-        job->commands[job->num_cmds++] = cmd;
+        current_job->commands = realloc(
+            current_job->commands,
+            (current_job->num_cmds + 1) * sizeof *current_job->commands);
+        current_job->commands[current_job->num_cmds++] = cmd;
     }
+    sv_free(&argv);
     free(input_file);
     free(output_file);
     free(error_file);
-    sv_free(&argv);
 
-    // 6. clean up temp token storage
+    if (current_job->num_cmds > 0) {
+        list.jobs = realloc(list.jobs, (list.count + 1) * sizeof *list.jobs);
+        list.jobs[list.count++] = current_job;
+    } else {
+        free(current_job);
+    }
+
+    // 5. cleanup
     sv_free(&tokens);
     free(buf);
 
-    // temp debug print
-    fprintf(stderr, "Job: %zu commands\n", job->num_cmds);
-    for (size_t c = 0; c < job->num_cmds; c++) {
-        fprintf(stderr, "  Command %zu:\n", c);
-        for (size_t a = 0; job->commands[c].argv && job->commands[c].argv[a]; a++)
-            fprintf(stderr, "    argv[%zu] = \"%s\"\n", a, job->commands[c].argv[a]);
-        if (job->commands[c].input_file)
-            fprintf(stderr, "    < %s\n", job->commands[c].input_file);
-        if (job->commands[c].output_file)
-            fprintf(stderr, "    > %s\n", job->commands[c].output_file);
-        if (job->commands[c].error_file)
-            fprintf(stderr, "    2> %s\n", job->commands[c].error_file);
+    // debug print
+    for (size_t j = 0; j < list.count; j++) {
+        Job *job = list.jobs[j];
+        fprintf(stderr, "\nJob[%zu]: %zu commands\n", j, job->num_cmds);
+        for (size_t c = 0; c < job->num_cmds; c++) {
+            fprintf(stderr, "  Command %zu:\n", c);
+            for (size_t a = 0; job->commands[c].argv && job->commands[c].argv[a]; a++)
+                fprintf(stderr, "    argv[%zu] = \"%s\"\n", a, job->commands[c].argv[a]);
+            if (job->commands[c].input_file)
+                fprintf(stderr, "    < %s\n", job->commands[c].input_file);
+            if (job->commands[c].output_file)
+                fprintf(stderr, "    > %s\n", job->commands[c].output_file);
+            if (job->commands[c].error_file)
+                fprintf(stderr, "    2> %s\n", job->commands[c].error_file);
+        }
+        fprintf(stderr, "background=%d sequential=%d\n",
+                job->background, job->sequential);
     }
-    fprintf(stderr, "background=%d sequential=%d\n",
-            job->background, job->sequential);
 
-
-    return job;
-
+    return list;
 }
+
+
 
 
 

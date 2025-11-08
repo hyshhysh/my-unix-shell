@@ -3,6 +3,6 @@
 
 int execute_job(const Job *job) {
     (void)job;
-    printf("Executor stub: job would run here.");
+    printf("Executor stub: job would run here.\n");
     return 0;
 }
