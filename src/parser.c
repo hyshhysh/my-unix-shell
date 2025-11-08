@@ -117,16 +117,29 @@ static Command make_empty_command(void) {
     return c;
 }
 
+static Command make_command_from_argv(StrVec *argv) {
+    Command cmd = make_empty_command();
+    cmd.argv = calloc(argv->size + 1, sizeof *cmd.argv);
+    for (size_t i = 0; i < argv->size; i++) {
+        cmd.argv[i] = argv->data[i]; //transfer ownership
+        argv->data[i] = NULL;
+    }
+    cmd.argv[argv->size] = NULL;
+    return cmd;
+}
+
 static void free_command(Command *c) {
     if (!c) return;
     if (c->argv) {
-        for (size_t i = 0; c->argv[i]; i++) {
-            free(c->argv[i]); // free each strdup string
-        }
+        for (size_t i = 0; c->argv[i]; i++)
+            free(c->argv[i]);
         free(c->argv);
-        c->argv = NULL;
     }
+    free(c->input_file);
+    free(c->output_file);
+    free(c->error_file);
 }
+
 
 void free_job(Job *job) {
     if (!job) return;
@@ -162,66 +175,117 @@ Job *parse_line(const char *line_in) {
         return NULL;
     }
 
-    // 4. Build a Command with argv[] from tokens
-    Command cmd = make_empty_command();
-
-    // Allocate argv with +1 for NULL terminator
-    cmd.argv = (char**)calloc(tokens.size+1, sizeof *cmd.argv);
-    if (!cmd.argv) {
-        perror("calloc argv");
-        sv_free(&tokens);
-        free(buf);
-        return NULL;
-    }
-
-    // Copy token strings into argv for job
-    for (size_t i = 0; i < tokens.size; i++) {
-        cmd.argv[i] = strdup(tokens.data[i]);
-        if (!cmd.argv[i]) {
-            perror("strdup argv");
-            // clean partial argv
-            for (size_t k = 0; k < i; k++) free(cmd.argv[k]);
-            free(cmd.argv);
-            sv_free(&tokens);
-            free(buf);
-            return NULL;
-        }
-    }
-    cmd.argv[tokens.size] = NULL;
-
-    // debug print
-    for (size_t i = 0; i < tokens.size; i++) {
-        fprintf(stderr, "[tok %zu] \"%s\"\n", i, tokens.data[i]);
-    }
-
-
-    // 5. Build a single command Job
-    Job *job = (Job*)calloc(1, sizeof *job);
+    // 4. Build Commands and Job
+    Job *job = calloc(1, sizeof *job);
     if (!job) {
         perror("calloc job");
-        free_command(&cmd);
         sv_free(&tokens);
         free(buf);
         return NULL;
     }
 
-    job->commands = (Command*)calloc(1, sizeof *job->commands);
-    if (!job->commands) {
-        perror("calloc job->commands");
-        free(job);
-        free_command(&cmd);
-        sv_free(&tokens);
-        free(buf);
-        return NULL;
-    }
-    job->commands[0] = cmd;
-    job->num_cmds = 1;
+    job->commands = NULL;
+    job->num_cmds = 0;
     job->background = false;
     job->sequential = false;
 
-    // 6. Cleanup temp tokenizer storage
+    // Temp holder for current command args
+    StrVec argv;
+    sv_init(&argv);
+
+    char *input_file = NULL;
+    char *output_file = NULL;
+    char *error_file = NULL;
+
+    for (size_t i = 0; i < tokens.size; i++) {
+        char *t = tokens.data[i];
+
+        if (strcmp(t, "|") == 0) {
+            // end current command, start a new one
+            Command cmd = make_command_from_argv(&argv);
+            cmd.input_file  = input_file;
+            cmd.output_file = output_file;
+            cmd.error_file  = error_file;
+            input_file = output_file = error_file = NULL;
+
+            job->commands = realloc(job->commands, 
+                (job->num_cmds + 1) * sizeof *job->commands);
+            job->commands[job->num_cmds++] = cmd;
+
+            // prepare for the next command in the pipeline
+            sv_free(&argv);
+            sv_init(&argv);
+            continue;
+        }
+
+        // handle redirections
+        if (strcmp(t, "<") == 0 && i + 1 < tokens.size) {
+            free(input_file);
+            input_file = strdup(tokens.data[++i]);
+            continue;
+        }
+        if (strcmp(t, ">") == 0 && i + 1 < tokens.size) {
+            free(output_file);
+            output_file = strdup(tokens.data[++i]);
+            continue;
+        }
+        if (strcmp(t, "2>") == 0 && i + 1 < tokens.size) {
+            free(error_file);
+            error_file = strdup(tokens.data[++i]);
+            continue;
+        }
+        
+        // background & sequential flags
+        if (strcmp(t, "&") == 0) {
+            job->background = true;
+            continue;
+        }
+        if (strcmp(t, ";") == 0) {
+            job->sequential = true;
+            continue;
+        }
+        
+        // otherwise a normal argument
+            sv_push(&argv, strdup(t));
+    }
+
+    // flush the last command if any args collected
+    if (argv.size > 0) {
+        Command cmd = make_command_from_argv(&argv);
+        cmd.input_file  = input_file;
+        cmd.output_file = output_file;
+        cmd.error_file  = error_file;
+        input_file = output_file = error_file = NULL;
+
+        job->commands = realloc(job->commands,
+                                (job->num_cmds + 1) * sizeof *job->commands);
+        job->commands[job->num_cmds++] = cmd;
+    }
+    free(input_file);
+    free(output_file);
+    free(error_file);
+    sv_free(&argv);
+
+    // 6. clean up temp token storage
     sv_free(&tokens);
     free(buf);
+
+    // temp debug print
+    fprintf(stderr, "Job: %zu commands\n", job->num_cmds);
+    for (size_t c = 0; c < job->num_cmds; c++) {
+        fprintf(stderr, "  Command %zu:\n", c);
+        for (size_t a = 0; job->commands[c].argv && job->commands[c].argv[a]; a++)
+            fprintf(stderr, "    argv[%zu] = \"%s\"\n", a, job->commands[c].argv[a]);
+        if (job->commands[c].input_file)
+            fprintf(stderr, "    < %s\n", job->commands[c].input_file);
+        if (job->commands[c].output_file)
+            fprintf(stderr, "    > %s\n", job->commands[c].output_file);
+        if (job->commands[c].error_file)
+            fprintf(stderr, "    2> %s\n", job->commands[c].error_file);
+    }
+    fprintf(stderr, "background=%d sequential=%d\n",
+            job->background, job->sequential);
+
 
     return job;
 
