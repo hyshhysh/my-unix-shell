@@ -2,13 +2,16 @@
 #include <stdlib.h>
 #include "parser.h"
 #include "executor.h"
+#include "builtins.h"
+
+ShellState shell_state = { "% "};
 
 int main(void) {
     char *line = NULL;
     size_t n = 0;
 
     while (1) {
-        printf("%% ");
+        printf("%s", shell_state.prompt);
         fflush(stdout);
 
         if (getline(&line, &n, stdin) < 0) {

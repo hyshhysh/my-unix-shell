@@ -10,23 +10,29 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+extern ShellState shell_state;
+
 /* ---------- Helpers ---------- */
 
 // Returns 1 if argv[0] is a builtin command to handle in the parent
 static int is_builtin(const char *name) {
     if (!name) return 0;
-    if (strcmp(name, "cd") == 0) return 1;
-    if (strcmp(name, "pwd") == 0) return 1;
-    if (strcmp(name, "prompt") == 0) return 1;
-    if (strcmp(name, "exit") == 0) return 1;
-    if (strcmp(name, "history") == 0) return 1;
-    return 0;
+    return (
+        strcmp(name, "cd") == 0 ||
+        strcmp(name, "pwd") == 0 ||
+        strcmp(name, "prompt") == 0 ||
+        strcmp(name, "exit") == 0 ||
+        strcmp(name, "history") == 0
+    );
 }
 
 // Run the built in: return 0 if success
 static int run_builtin(char **argv) {
-    (void)argv;
-    fprintf(stderr, "[executor] built ins not impleemented yet\n");
+    if (strcmp(argv[0], "cd") == 0) return bi_cd(argv);
+    if (strcmp(argv[0], "pwd") == 0) return bi_pwd(argv);
+    if (strcmp(argv[0], "prompt") == 0) return bi_prompt(&shell_state, argv);
+    if (strcmp(argv[0], "exit") == 0) return bi_exit(argv);
+    if (strcmp(argv[0], "history") == 0) return bi_history(argv);
     return 0;
 }
 

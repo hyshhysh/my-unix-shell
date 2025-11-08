@@ -307,25 +307,6 @@ JobList parse_line(const char *line_in) {
     sv_free(&tokens);
     free(buf);
 
-    // debug print
-    for (size_t j = 0; j < list.count; j++) {
-        Job *job = list.jobs[j];
-        fprintf(stderr, "\nJob[%zu]: %zu commands\n", j, job->num_cmds);
-        for (size_t c = 0; c < job->num_cmds; c++) {
-            fprintf(stderr, "  Command %zu:\n", c);
-            for (size_t a = 0; job->commands[c].argv && job->commands[c].argv[a]; a++)
-                fprintf(stderr, "    argv[%zu] = \"%s\"\n", a, job->commands[c].argv[a]);
-            if (job->commands[c].input_file)
-                fprintf(stderr, "    < %s\n", job->commands[c].input_file);
-            if (job->commands[c].output_file)
-                fprintf(stderr, "    > %s\n", job->commands[c].output_file);
-            if (job->commands[c].error_file)
-                fprintf(stderr, "    2> %s\n", job->commands[c].error_file);
-        }
-        fprintf(stderr, "background=%d sequential=%d\n",
-                job->background, job->sequential);
-    }
-
     return list;
 }
 
