@@ -192,16 +192,113 @@ static int run_single_command(const Command *cmd, int background) {
 
 /* ---------- Public entry point ---------- */
 int execute_job(const Job *job) {
-    if (!job || job->num_cmds == 0) return 0;
-
     if (job->num_cmds > 1) {
-        // Pipelines to be implemented
-        fprintf(stderr, "[executor] pipelines not implemented yet.\n");
-        // only run first command for now to test
-        return run_single_command(&job->commands[0], job->background);
+        size_t num_pipes = job->num_cmds > 0 ? job->num_cmds - 1 : 0;
+        int pipes[num_pipes][2];
+
+        // create pipes
+        for (size_t i = 0; i < num_pipes; i++) {
+            if (pipe(pipes[i]) < 0) {
+                perror("pipe");
+                return -1;
+            }
+        }
+
+        pid_t pids[job->num_cmds];
+
+        for (size_t i =0; i < job->num_cmds; i++) {
+            Command *cmd = &job->commands[i];
+            expand_wildcards(cmd);
+
+            pid_t pid = fork();
+            if (pid < 0) {
+                perror("fork");
+                return -1;
+            }
+
+            if (pid == 0) {
+                /* ---------- child ---------- */
+                signal(SIGINT, SIG_DFL);
+                signal(SIGQUIT, SIG_DFL);
+                signal(SIGTSTP, SIG_DFL);
+
+                // connect input
+                if (i > 0) {
+                    dup2(pipes[i-1][0], STDIN_FILENO);
+                }
+                // connect output
+                if (i < num_pipes) {
+                    dup2(pipes[i][1], STDOUT_FILENO);
+                }
+                
+                // close all pipe ends
+                for (size_t j = 0; j < num_pipes; j++) {
+                    close(pipes[j][0]);
+                    close(pipes[j][1]);   
+                }
+
+                // apply redirections
+                if (cmd->input_file) {
+                    int fd = open(cmd->input_file, O_RDONLY);
+                    if (fd < 0) {
+                        perror(cmd->input_file);
+                        _exit(1);
+                    }
+                    dup2(fd, STDIN_FILENO);
+                    close(fd);
+                }
+                if (cmd->output_file) {
+                    int fd = open(cmd->output_file,
+                        O_WRONLY | O_CREAT | O_TRUNC, 0644);
+                    if (fd < 0) {
+                        perror(cmd->output_file);
+                        _exit(1);
+                    }
+                    dup2(fd, STDOUT_FILENO);
+                    close(fd);
+                }
+                if (cmd->error_file) {
+                    int fd = open(cmd->error_file, 
+                        O_WRONLY | O_CREAT | O_TRUNC, 0644);
+                    if (fd < 0) {
+                        perror(cmd->error_file);
+                        _exit(1);
+                    }
+                    dup2(fd, STDERR_FILENO);
+                    close(fd);
+                }
+
+                execvp(cmd->argv[0], cmd->argv);
+                perror("execvp");
+                _exit(127);
+            }
+
+            /* ---------- parent ---------- */
+            pids[i] = pid;
+
+            // close ends not needed in parent
+            if (i > 0) close(pipes[i-1][0]);
+            if (i < num_pipes) close(pipes[i][1]);
+        }
+
+        // parent closes any remaining pipe read ends
+        if (num_pipes > 0) close(pipes[num_pipes-1][0]);
+
+        // wait unless background
+        if (!job->background) {
+            for (size_t i = 0; i < job->num_cmds; i++) {
+                int status;
+                waitpid(pids[i], &status, 0);
+            }
+        } else {
+            printf("[background pipeline started]\n");
+        }
+
+        return 0;
+
     }
 
-    // Singlle command job
+    // Single command job
     return run_single_command(&job->commands[0], job->background);
 }
 
