@@ -4,14 +4,14 @@
 #include "executor.h"
 #include "builtins.h"
 
-ShellState shell_state = { "% "};
+ShellState shell_state = { "% " };
 
 int main(void) {
     char *line = NULL;
     size_t n = 0;
 
     while (1) {
-        printf("%s", shell_state.prompt);
+        printf("%s ", shell_state.prompt);
         fflush(stdout);
 
         if (getline(&line, &n, stdin) < 0) {

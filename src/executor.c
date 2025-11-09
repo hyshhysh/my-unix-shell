@@ -9,6 +9,7 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <glob.h>
 
 extern ShellState shell_state;
 
@@ -36,6 +37,65 @@ static int run_builtin(char **argv) {
     return 0;
 }
 
+/* ---------- Wildcard patterns (* or ?) in cmd->argv using glob(3) ---------- */
+static void expand_wildcards(Command *cmd) {
+    if (!cmd || !cmd->argv) return;
+
+    // temporary dynamic list for expanded arguments
+    size_t newcap = 0, newsize = 0;
+    char **newargv = NULL;
+
+    for (size_t i = 0; cmd->argv[i]; i++) {
+        char *arg = cmd->argv[i];
+
+        // check if argument contains * or ?
+        if (strpbrk(arg, "*?")) {
+            glob_t g = {0};
+            int r = glob(arg, 0, NULL, &g);
+
+            if (r == 0) {
+                // append all matches
+                for (size_t j = 0; j < g.gl_pathc; j++) {
+                    if (newsize + 1 >= newcap) {
+                        newcap = newcap ? newcap * 2 : 8;
+                        newargv = realloc(newargv, newcap * sizeof *newargv);
+                    }
+                    newargv[newsize++] = strdup(arg);
+                }
+                globfree(&g);
+            } else {
+                // no matches: keep the original token
+                if (newsize + 1 >= newcap) {
+                    newcap = newcap ? newcap * 2 : 8;
+                    newargv = realloc(newargv, newcap * sizeof *newargv);
+                }
+                newargv[newsize++] = strdup(arg);
+            }
+            globfree(&g);
+        } else {
+            // normal argument (no wildcard)
+            if (newsize + 1 >= newcap) {
+                newcap = newcap ? newcap * 2 : 8;
+                newargv = realloc(newargv, newcap * sizeof *newargv);
+            }
+            newargv[newsize++] = strdup(arg);
+        }
+    }
+
+    // NULL terminate
+    if (newsize + 1 >= newcap) {
+        newcap++;
+        newargv = realloc(newargv, newcap * sizeof *newargv);
+    }
+    newargv[newsize] = NULL;
+
+    // free old argv
+    for (size_t i = 0; cmd->argv[i]; i++) free(cmd->argv[i]);
+    free(cmd->argv);
+
+    cmd->argv = newargv;
+}
+
 /* ---------- Core: run a single command ---------- */
 static int run_single_command(const Command *cmd, int background) {
     if (!cmd || !cmd->argv || !cmd->argv[0]) {
@@ -47,6 +107,9 @@ static int run_single_command(const Command *cmd, int background) {
     if (is_builtin(cmd->argv[0])) {
         return run_builtin(cmd->argv);
     }
+
+    // Expand any * or ? in arguments
+    expand_wildcards((Command *)cmd);
 
     // Fork a child to run external program
     pid_t pid = fork();
