@@ -50,19 +50,19 @@ static void expand_wildcards(Command *cmd) {
 
         // check if argument contains * or ?
         if (strpbrk(arg, "*?")) {
-            glob_t g = {0};
+            glob_t g;
+            memset(&g, 0, sizeof g);
+            
             int r = glob(arg, 0, NULL, &g);
-
-            if (r == 0) {
+            if (r == 0 && g.gl_pathc > 0) {
                 // append all matches
                 for (size_t j = 0; j < g.gl_pathc; j++) {
                     if (newsize + 1 >= newcap) {
                         newcap = newcap ? newcap * 2 : 8;
                         newargv = realloc(newargv, newcap * sizeof *newargv);
                     }
-                    newargv[newsize++] = strdup(arg);
+                    newargv[newsize++] = strdup(g.gl_pathv[j]);
                 }
-                globfree(&g);
             } else {
                 // no matches: keep the original token
                 if (newsize + 1 >= newcap) {
@@ -82,14 +82,14 @@ static void expand_wildcards(Command *cmd) {
         }
     }
 
-    // NULL terminate
+    // NULL terminate the new argv
     if (newsize + 1 >= newcap) {
-        newcap++;
+        newcap = newcap ? newcap + 1 : 1;
         newargv = realloc(newargv, newcap * sizeof *newargv);
     }
     newargv[newsize] = NULL;
 
-    // free old argv
+    // free old argv strings and array, swap in the new one
     for (size_t i = 0; cmd->argv[i]; i++) free(cmd->argv[i]);
     free(cmd->argv);
 
