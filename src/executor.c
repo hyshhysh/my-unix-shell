@@ -10,6 +10,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <glob.h>
+#include <fcntl.h>
 
 extern ShellState shell_state;
 
@@ -124,7 +125,40 @@ static int run_single_command(const Command *cmd, int background) {
         signal(SIGQUIT, SIG_DFL);
         signal(SIGTSTP, SIG_DFL);
         
-        // Redirection and pipes to be implemented
+        /* ---------- I/O redirection ---------- */
+        if (cmd->input_file) {
+            int fd = open(cmd->input_file, O_RDONLY);
+            if (fd < 0) {
+                perror(cmd->input_file);
+                _exit(1);
+            }
+            dup2(fd, STDIN_FILENO);
+            close(fd);
+        }
+
+        if (cmd->output_file) {
+            int fd = open(cmd->output_file,
+                O_WRONLY | O_CREAT | O_TRUNC, 0644);
+            if (fd < 0) {
+                perror(cmd->output_file);
+                _exit(1);
+            }
+            dup2(fd, STDOUT_FILENO);
+            close(fd);
+        }
+
+        if (cmd->error_file) {
+            int fd = open(cmd->error_file,
+                O_WRONLY | O_CREAT | O_TRUNC, 0644);
+            if (fd < 0) {
+                perror(cmd->error_file);
+                _exit(1);
+            }
+            dup2(fd, STDERR_FILENO);
+            close(fd);
+        }
+
+
         // Execute program (search PATH, inherit environment)
         execvp(cmd->argv[0], cmd->argv);
 
