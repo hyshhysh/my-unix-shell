@@ -1,10 +1,14 @@
 #include "builtins.h"
+#include "history.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <limits.h>
 #include <errno.h>
+
+extern History history;
 
 bool bi_cd(char **argv) {
     const char *target = argv[1];
@@ -45,6 +49,6 @@ bool bi_exit(char **argv) {
 
 bool bi_history(char **argv) {
     (void)argv;
-    fprintf(stderr, "[history not yet implemented]\n");
+    history_print(&history);
     return true;
 }

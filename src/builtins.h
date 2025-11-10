@@ -1,7 +1,11 @@
 #ifndef BUILTINS_H
 #define BUILTINS_H
 
+#include "history.h"
+
 #include <stdbool.h>
+
+extern History history;
 
 typedef struct {
     char prompt[256];
