@@ -9,10 +9,14 @@
 #include <signal.h>
 #include <sys/wait.h>
 #include <errno.h>
+#include <termios.h>
+#include <unistd.h>
 
 ShellState shell_state = { "% " };
 History history;
 
+
+/* ---------- Helpers ---------- */
 static void reap_background_children(void) {
     int status;
     for (;;) {
@@ -27,6 +31,92 @@ static void reap_background_children(void) {
     }
 }
 
+static void enable_raw_mode(struct termios *orig_termios) {
+    tcgetattr(STDIN_FILENO, orig_termios);
+    struct termios raw = *orig_termios;
+    raw.c_lflag &= (tcflag_t) ~(ICANON | ECHO);   // no canonical mode, no echo
+    tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
+}
+
+static void disable_raw_mode(const struct termios *orig_termios) {
+    tcsetattr(STDIN_FILENO, TCSAFLUSH, orig_termios);
+}
+
+static ssize_t read_line_with_history(char **lineptr, size_t *n, const History *hist) {
+    struct termios orig;
+    enable_raw_mode(&orig);
+
+    size_t cap = *n ? *n : 128;
+    char *buf = *lineptr ? *lineptr : malloc(cap);
+    size_t len = 0;
+
+    ssize_t hist_index = (ssize_t)hist->count; // one past last entry
+    const char *current = NULL;
+
+    write(STDOUT_FILENO, shell_state.prompt, strlen(shell_state.prompt));
+
+    char c;
+    while (read(STDIN_FILENO, &c, 1) == 1) {
+        if (c == '\n' || c == '\r') {
+            buf[len++] = '\0';
+            write(STDOUT_FILENO, "\n", 1);
+            break;
+        } else if (c == 127 || c == '\b') {        // backspace
+            if (len > 0) {
+                len--;
+                write(STDOUT_FILENO, "\b \b", 3);
+            }
+        } else if (c == 27) {                      // ESC sequence
+            char seq[2];
+            if (read(STDIN_FILENO, seq, 2) == 2) {
+                if (seq[0] == '[' && seq[1] == 'A') { // Up arrow
+                    if (hist->count > 0 && hist_index > 0) {
+                        hist_index--;
+                        current = hist->items[(hist->head + hist->capacity
+                             - hist->count + (size_t)hist_index) % hist->capacity];
+                        // clear line
+                        for (size_t i = 0; i < len; i++) write(STDOUT_FILENO, "\b \b", 3);
+                        len = strlen(current);
+                        strncpy(buf, current, cap - 1);
+                        buf[len] = '\0';
+                        write(STDOUT_FILENO, current, len);
+                    }
+                } else if (seq[0] == '[' && seq[1] == 'B') { // Down arrow
+                    if (hist_index < (ssize_t)hist->count - 1) {
+                        hist_index++;
+                        current = hist->items[(hist->head + hist->capacity
+                             - hist->count + (size_t)hist_index) % hist->capacity];
+                        for (size_t i = 0; i < len; i++) write(STDOUT_FILENO, "\b \b", 3);
+                        len = strlen(current);
+                        strncpy(buf, current, cap - 1);
+                        buf[len] = '\0';
+                        write(STDOUT_FILENO, current, len);
+                    } else if (hist_index == (ssize_t)hist->count - 1) {
+                        hist_index++;
+                        for (size_t i = 0; i < len; i++) write(STDOUT_FILENO, "\b \b", 3);
+                        len = 0;
+                        buf[0] = '\0';
+                    }
+                }
+            }
+        } else {
+            if (len + 1 >= cap) {
+                cap *= 2;
+                buf = realloc(buf, cap);
+            }
+            buf[len++] = c;
+            write(STDOUT_FILENO, &c, 1);
+        }
+    }
+
+    disable_raw_mode(&orig);
+    *lineptr = buf;
+    *n = cap;
+    return (ssize_t)len;
+}
+
+
+/* ---------- Main logic ---------- */
 int main(void) {
     char *line = NULL;
     size_t n = 0;
@@ -38,11 +128,11 @@ int main(void) {
     signal(SIGTSTP, SIG_IGN); // 'ctrl-z'
 
     while (1) {
-        printf("%s ", shell_state.prompt);
         fflush(stdout);
 
-        ssize_t r = getline(&line, &n, stdin);
-        if (r < 0) { putchar('\n'); break; }
+        ssize_t r = read_line_with_history(&line, &n, &history);
+        if (r <= 0) { putchar('\n'); break; }
+
         size_t len = strlen(line);
         if (len > 0 && line[len - 1] == '\n') line[len - 1] = '\0';
 

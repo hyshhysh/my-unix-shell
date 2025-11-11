@@ -37,8 +37,18 @@ bool bi_prompt(ShellState *st, char **argv) {
         fprintf(stderr, "usage: prompt NEWPROMPT\n");
         return true;
     }
-    strncpy(st->prompt, argv[1], sizeof(st->prompt)-1);
-    st->prompt[sizeof(st->prompt)-1] = '\0';
+
+    // copy base string
+    strncpy(st->prompt, argv[1], sizeof(st->prompt) - 2); // leave room for space + '\0'
+    st->prompt[sizeof(st->prompt) - 2] = '\0';
+
+    // append exactly one space if not already ending with one
+    size_t len = strlen(st->prompt);
+    if (len == 0 || st->prompt[len - 1] != ' ') {
+        st->prompt[len++] = ' ';
+        st->prompt[len] = '\0';
+    }
+
     return true;
 }
 
