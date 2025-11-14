@@ -59,50 +59,158 @@ static int is_one_char_special(char c) {
     return (c == '|' || c == ';' || c == '&' || c == '<' || c == '>');
 }
 
+typedef struct {
+    char *buf;
+    size_t len;
+    size_t cap;
+} TokBuf;
+
+static void tb_init(TokBuf *tb) {
+    tb->buf = NULL;
+    tb->len = 0;
+    tb->cap = 0;
+}
+
+static void tb_reset(TokBuf *tb) {
+    tb->len = 0;
+}
+
+static int tb_reserve(TokBuf *tb, size_t need) {
+    if (need <= tb-> cap) return 1;
+    size_t cap = tb->cap ? tb->cap : 32;
+    while (cap < need) cap *= 2;
+    char *tmp = (char*)realloc(tb->buf, cap);
+    if(!tmp) return 0;
+    tb->buf = tmp;
+    tb->cap = cap;
+    return 1;
+}
+
+static int tb_push_char(TokBuf *tb, char c) {
+    if (!tb_reserve(tb, tb->len + 2)) return 0;
+    tb->buf[tb->len++] = c;
+    tb->buf[tb->len] = '\0';
+    return 1;
+}
+
+/* Finish current token (if any) and push a strdup'ed copy into out */
+static int tb_finish_token(TokBuf *tb, StrVec *out) {
+    if (tb->len == 0) return 1; // nothing to push
+    char *copy = strdup(tb->buf);
+    if (!copy) return 0;
+    if (!sv_push(out, copy)) {
+        free(copy);
+        return 0;
+    }
+    tb_reset(tb);
+    return 1;
+}
+
 /* Tokenize with shell specials as separate tokens.
- * Handles | ; & < > and 2>
+ * Whitespace separates tokens.
+ * Quotes "" and '' create single tokens (stripped).
+ * Inside single quotes, \ becomes '.
+ * Inside double quotes, \ becomes ".
+ * Backslash in normal mode escapes special chars, space, backslash itself.
+ * Special tokens are separate tokens unless escaped/quoted.
 */
 static void tokenize_with_specials(char *buf, StrVec *out) {
     sv_init(out);
-    char *p = buf;
+    TokBuf tb;
+    tb_init(&tb);
 
-    while (*p) {
-        // skip leading whitespace
-        while (*p == ' ' || *p == '\t') p++;
-        if (*p == '\0') break;
+    enum { ST_NORMAL, ST_IN_SQ, ST_IN_DQ } state = ST_NORMAL;
 
-        char *start = p;
+    for (char *p = buf; ; ++p) {
+        char c = *p;
 
-        // handle specials
-        if (p[0] == '2' && p[1] == '>') {
-            // 2>
-            p += 2;
-        }
-        else if (is_one_char_special(*p)) {
-            p++;
-        }
-        else {
-            // normal word
-            while (*p && *p != ' ' && *p != '\t' && !is_one_char_special(*p)) {
-                if (p[0] == '2' && p[1] == '>') break;
-                p++;
+        if (state == ST_NORMAL) {
+            if (c == '\0') {
+                // end of input
+                tb_finish_token(&tb, out);
+                break;
+            } else if (c == ' ' || c == '\t') {
+                // whitespace ends token
+                tb_finish_token(&tb, out);
+                continue;
+            } else if (c == '\'') {
+                // start single-quoted string
+                state = ST_IN_SQ;
+                continue;
+            } else if (c == '\"') {
+                // start double-quoted string
+                state = ST_IN_DQ;
+                continue;
+            } else if (c == '\\') {
+                // escape next char (space, special, backslash, etc.)
+                if (p[1] != '\0') {
+                    ++p;
+                    tb_push_char(&tb, *p);
+                    continue;
+                } else {
+                    // trailing backslash at end: treat as literal
+                    tb_push_char(&tb, '\\');
+                    continue;
+                }
+            } else if (c == '2' && p[1] == '>') {
+                // special two-char token "2>"
+                tb_finish_token(&tb, out);
+                char *tok = strdup("2>");
+                if (tok) sv_push(out, tok);
+                ++p; // skip '>'
+                continue;
+            } else if (is_one_char_special(c)) {
+                // single-character special token
+                tb_finish_token(&tb, out);
+                char tmp[2] = { c, '\0' };
+                char *tok = strdup(tmp);
+                if (tok) sv_push(out, tok);
+                continue;
+            } else {
+                // normal character
+                tb_push_char(&tb, c);
+                continue;
+            }
+        } else if (state == ST_IN_SQ) {
+            if (c == '\0') {
+                // unterminated quote: just finish the token
+                tb_finish_token(&tb, out);
+                break;
+            } else if (c == '\\' && p[1] == '\'') {
+                // escaped single quote inside single quotes
+                ++p;
+                tb_push_char(&tb, '\'');
+                continue;
+            } else if (c == '\'') {
+                // end single-quoted string
+                state = ST_NORMAL;
+                continue;
+            } else {
+                tb_push_char(&tb, c);
+                continue;
+            }
+        } else if (state == ST_IN_DQ) {
+            if (c == '\0') {
+                // unterminated quote: finish token
+                tb_finish_token(&tb, out);
+                break;
+            } else if (c == '\\' && p[1] == '\"') {
+                // escaped double quote inside double quotes
+                ++p;
+                tb_push_char(&tb, '\"');
+                continue;
+            } else if (c == '\"') {
+                // end double-quoted string
+                state = ST_NORMAL;
+                continue;
+            } else {
+                tb_push_char(&tb, c);
+                continue;
             }
         }
-
-        // Extract token substring and push copy
-        char saved = *p;
-        *p = '\0'; // terminate token
-        
-        // Push a duplicate string
-        char *token_copy = strdup(start);
-        if (token_copy) {
-            sv_push(out, token_copy);
-        }
-        
-        *p = saved; // restore char to continue
-
-        if (*p == '\0') break;
     }
+
+    free(tb.buf);
 }
 
 
