@@ -180,12 +180,19 @@ static int run_single_command(const Command *cmd, int background) {
     for (;;) {
         pid_t w = waitpid(pid, &status, 0);
         if (w < 0) {
-            if (errno == EINTR) continue; // interrupted by a signal - retry
+            if (errno == EINTR) continue;
             perror("waitpid");
             return -1;
         }
+
+        // If child was terminated by signal, print newline
+        if (WIFSIGNALED(status)) {
+            write(STDOUT_FILENO, "\n", 1);
+        }
+
         break;
     }
+
     return 0;
 
 }
